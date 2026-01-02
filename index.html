@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jadwal Canyoning Pro</title>
+<style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
+    
+    /* Header */
+    .header { color: white; padding: 20px; text-align: center; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    h2 { margin: 0; font-size: 1.5rem; }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 0 15px; }
+
+    /* Controls */
+    .controls { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
+    select { padding: 10px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px; width: 100%; max-width: 300px; cursor: pointer; }
+
+    /* Accordion */
+    .accordion-item { background: white; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); overflow: hidden; }
+    .accordion-header { 
+        padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; 
+        background: #fff; transition: background 0.2s; border-bottom: 1px solid transparent;
+    }
+    .accordion-header:hover { background: #f8f9fa; }
+    .accordion-header.active { background: #e3f2fd; border-bottom: 1px solid #e1e4e8; color: #0d47a1; }
+    .accordion-header .date { font-weight: 600; font-size: 1.1em; }
+    .accordion-header .count { font-size: 0.85em; background: #eee; padding: 4px 10px; border-radius: 20px; color: #555; }
+    
+    .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+    .table-responsive { overflow-x: auto; }
+    
+    table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 600px; }
+    th { background: #f1f3f5; text-align: left; padding: 12px 15px; color: #495057; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #dee2e6; }
+    td { padding: 12px 15px; border-bottom: 1px solid #eee; color: #333; }
+    tr:last-child td { border-bottom: none; }
+
+    /* Badges */
+    .badge { padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 0.85em; display: inline-block; }
+    .badge-full { background: #ffebee; color: #c62828; } /* Merah */
+    .badge-dp { background: #fff3e0; color: #ef6c00; } /* Oranye */
+    .badge-pic { background: #e8f5e9; color: #2e7d32; border-radius: 12px; } /* Hijau */
+
+    /* Rekap Section */
+    .summary-box { background: white; padding: 25px; border-radius: 8px; margin: 30px auto 50px; max-width: 600px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+    .summary-row:last-child { border-bottom: none; font-weight: bold; font-size: 1.1em; margin-top: 10px; padding-top: 15px; border-top: 2px solid #ddd; }
+    
+    /* Loading & Error */
+    #loading { text-align: center; margin-top: 40px; color: #666; }
+    .error-msg { color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 8px; text-align: center; margin: 20px; border: 1px solid #ffcdd2; }
+</style>
+</head>
+<body>
+
+<div class="header">
+</div>
+
+<div id="loading">
+    <div style="font-size: 2em;">⏳</div>
+    <p>Sedang menghubungkan ke Spreadsheet...</p>
+</div>
+
+<div id="app" style="display:none;">
+    <div class="container">
+        <div class="controls">
+            <label for="sheetSelector" style="display:block; margin-bottom:8px; font-weight:600; color:#555;">Pilih Periode:</label>
+            <select id="sheetSelector"></select>
+        </div>
+    </div>
+
+    <div class="container" id="scheduleList"></div>
+
+    <div class="container">
+        <div class="summary-box">
+            <h3 style="text-align:center; margin-top:0; color:#2c3e50;">📊 Rekapitulasi PIC</h3>
+            <div id="picSummary"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 1. TEMPEL URL APPS SCRIPT (YANG BERAKHIRAN /exec) DI SINI
+    // ==========================================
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcDMlGtcoO2yY1wFd-ZMTyk3hs-dOmlUhnKd-rryL5JYAQSx-R07wRiP-A6D3bPl6Shg/exec"; 
+    // ==========================================
+
+    document.addEventListener("DOMContentLoaded", init);
+
+    async function init() {
+        const loading = document.getElementById('loading');
+        
+        try {
+            // Cek apakah URL sudah diganti
+            if (SCRIPT_URL.includes("MASUKKAN")) {
+                throw new Error("Anda belum memasukkan Link Apps Script ke dalam kode HTML.");
+            }
+
+            // Fetch Daftar Sheet
+            let response = await fetch(SCRIPT_URL);
+            
+            // Cek jika response bukan JSON (biasanya karena script minta login / bukan 'Anyone')
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Gagal akses Script. Pastikan Deploy sebagai 'Anyone' (Siapa Saja).");
+            }
+
+            let sheets = await response.json();
+            
+            if (!sheets || sheets.length === 0) throw new Error("Tidak ada sheet ditemukan di Spreadsheet.");
+
+            // Setup Dropdown
+            const select = document.getElementById('sheetSelector');
+            sheets.forEach(sheet => {
+                let opt = document.createElement('option');
+                opt.value = sheet.gid;
+                opt.innerText = sheet.name;
+                select.appendChild(opt);
+            });
+
+            // Tampilkan App
+            loading.style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+
+            // Load Data Pertama
+            loadSheetData(sheets[0].gid);
+
+            // Event Listener Change
+            select.addEventListener('change', (e) => loadSheetData(e.target.value));
+
+        } catch (err) {
+            loading.innerHTML = `<div class="error-msg"><strong>Terjadi Kesalahan:</strong><br>${err.message}</div>`;
+            console.error(err);
+        }
+    }
+
+    async function loadSheetData(gid) {
+        const container = document.getElementById('scheduleList');
+        const summary = document.getElementById('picSummary');
+        
+        container.innerHTML = "<p style='text-align:center; color:#888;'>Memuat data...</p>";
+        summary.innerHTML = "";
+
+        try {
+            let res = await fetch(`${SCRIPT_URL}?gid=${gid}`);
+            let rawData = await res.json();
+
+            // Validasi Data
+            if (!rawData || rawData.length < 2) {
+                container.innerHTML = "<p style='text-align:center; padding:20px;'>Data kosong di sheet ini.</p>";
+                return;
+            }
+
+            const headers = rawData[0]; // Baris Header
+            const rows = rawData.slice(1); // Baris Data
+            
+            // Proses Fill Forward (Tanggal Kosong)
+            const cleanData = processData(rows);
+
+            // Render UI
+            renderSchedule(headers, cleanData);
+            renderSummary(cleanData);
+
+        } catch (err) {
+            container.innerHTML = `<div class="error-msg">Gagal memuat detail data.<br>${err.message}</div>`;
+        }
+    }
+
+    // --- LOGIC FUNCTIONS ---
+
+    function processData(rows) {
+        let result = [];
+        let lastDate = null;
+        
+        rows.forEach(row => {
+            let newRow = [...row]; // Copy array
+            let date = newRow[0];
+            // Cek apakah baris ini punya isi (selain tanggal)
+            let hasContent = newRow.slice(1).some(cell => cell && cell.toString().trim() !== "");
+
+            if ((!date || date.toString().trim() === "") && lastDate && hasContent) {
+                newRow[0] = lastDate; // Pakai tanggal atasnya
+            } else if (date && date.toString().trim() !== "") {
+                lastDate = date; // Update tanggal terakhir
+            } else {
+                return; // Skip baris kosong total
+            }
+            result.push(newRow);
+        });
+        return result;
+    }
+
+    function renderSchedule(headers, data) {
+        // Grouping by Date
+        let groups = {};
+        data.forEach(row => {
+            let d = row[0];
+            if (!groups[d]) groups[d] = [];
+            groups[d].push(row);
+        });
+
+        const container = document.getElementById('scheduleList');
+        container.innerHTML = "";
+
+        for (let date in groups) {
+            let items = groups[date];
+            let totalGuest = items.reduce((sum, r) => sum + (parseInt(r[1]) || 0), 0);
+
+            // Wrapper
+            let itemDiv = document.createElement('div');
+            itemDiv.className = 'accordion-item';
+
+            // Header Accordion
+            let headerDiv = document.createElement('div');
+            headerDiv.className = 'accordion-header';
+            headerDiv.innerHTML = `
+                <span class="date">${date}</span>
+                <span class="count">${totalGuest} Tamu</span>
+            `;
+            
+            // Body Accordion
+            let bodyDiv = document.createElement('div');
+            bodyDiv.className = 'accordion-body';
+            
+            // Table Construction
+            let tableHTML = `<div class="table-responsive"><table><thead><tr>`;
+            // Skip kolom 0 (Tanggal) untuk header tabel detail
+            for(let i=1; i<headers.length; i++) {
+                tableHTML += `<th>${headers[i] || '-'}</th>`;
+            }
+            tableHTML += `</tr></thead><tbody>`;
+
+            items.forEach(row => {
+                tableHTML += `<tr>`;
+                for(let i=1; i<headers.length; i++) {
+                    let text = row[i] || "";
+                    let cellContent = text;
+                    
+                    // Auto Styling
+                    let lowerText = text.toString().toLowerCase();
+                    if(lowerText.includes('full')) cellContent = `<span class="badge badge-full">${text}</span>`;
+                    else if(lowerText.includes('dp') || lowerText.includes('lunas')) cellContent = `<span class="badge badge-dp">${text}</span>`;
+                    
+                    tableHTML += `<td>${cellContent}</td>`;
+                }
+                tableHTML += `</tr>`;
+            });
+            tableHTML += `</tbody></table></div>`;
+            
+            bodyDiv.innerHTML = tableHTML;
+            itemDiv.appendChild(headerDiv);
+            itemDiv.appendChild(bodyDiv);
+            container.appendChild(itemDiv);
+
+            // Click Event
+            headerDiv.addEventListener('click', function() {
+                this.classList.toggle('active');
+                if (bodyDiv.style.maxHeight) {
+                    bodyDiv.style.maxHeight = null;
+                } else {
+                    bodyDiv.style.maxHeight = bodyDiv.scrollHeight + "px";
+                }
+            });
+        }
+    }
+
+    function renderSummary(data) {
+        let picMap = {};
+        let grandTotal = 0;
+
+        data.forEach(row => {
+            let qty = parseInt(row[1]) || 0; // Asumsi Kolom B = Jumlah
+            let pic = row[3]; // Asumsi Kolom D = PIC
+            
+            if (qty > 0 && pic && pic.trim() !== '-' && pic.trim() !== '') {
+                let name = pic.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase()); // Title Case
+                picMap[name] = (picMap[name] || 0) + qty;
+                grandTotal += qty;
+            }
+        });
+
+        // Sort Descending
+        let sorted = Object.entries(picMap).sort((a,b) => b[1] - a[1]);
+        
+        let html = "";
+        if (sorted.length === 0) {
+            html = "<p style='text-align:center'>Tidak ada data.</p>";
+        } else {
+            sorted.forEach(([name, count]) => {
+                html += `
+                <div class="summary-row">
+                    <span>${name}</span>
+                    <span class="badge badge-pic">${count}</span>
+                </div>`;
+            });
+            html += `
+            <div class="summary-row">
+                <span>TOTAL KESELURUHAN</span>
+                <span>${grandTotal}</span>
+            </div>`;
+        }
+        
+        document.getElementById('picSummary').innerHTML = html;
+    }
+</script>
+
+</body>
+</html>
