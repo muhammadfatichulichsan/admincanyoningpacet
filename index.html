@@ -90,37 +90,24 @@
 </div>
 
 <script>
-    // ==========================================
-    // 1. TEMPEL URL APPS SCRIPT DI SINI
-    // ==========================================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcDMlGtcoO2yY1wFd-ZMTyk3hs-dOmlUhnKd-rryL5JYAQSx-R07wRiP-A6D3bPl6Shg/exec"; 
-    // ==========================================
-
-    // ==========================================
-    // 2. SETUP KATA KUNCI DI SINI
-    // ==========================================
     const SECRET_KEY = "adminslot"; 
-    // ==========================================
 
-    let CACHED_DATA = []; // Variabel global untuk menyimpan data sementara
+    let CACHED_DATA = []; 
 
     document.addEventListener("DOMContentLoaded", init);
 
     async function init() {
         const loading = document.getElementById('loading');
-        
-        // Setup Secret Key Listener
         const keyInput = document.getElementById('adminKey');
+        
         keyInput.addEventListener('input', function(e) {
             const secretDiv = document.getElementById('secretSection');
-            
             if (e.target.value === SECRET_KEY) {
-                // Jika password benar
                 secretDiv.style.display = 'block';
-                renderSummary(CACHED_DATA); // Hitung rekap saat itu juga
-                e.target.style.borderColor = "#2e7d32"; // Indikator hijau
+                renderSummary(CACHED_DATA);
+                e.target.style.borderColor = "#2e7d32";
             } else {
-                // Jika password salah/kosong
                 secretDiv.style.display = 'none';
                 e.target.style.borderColor = "#ccc";
             }
@@ -130,7 +117,6 @@
             if (SCRIPT_URL.includes("MASUKKAN")) throw new Error("Link Apps Script belum dimasukkan.");
 
             let response = await fetch(SCRIPT_URL);
-            
             const contentType = response.headers.get("content-type");
             if (!contentType || !contentType.includes("application/json")) {
                 throw new Error("Gagal akses Script. Pastikan Deploy sebagai 'Anyone'.");
@@ -139,18 +125,35 @@
             let sheets = await response.json();
             if (!sheets || sheets.length === 0) throw new Error("Tidak ada sheet ditemukan.");
 
+            // Deteksi Bulan dan Tahun saat ini (Indonesia)
+            const now = new Date();
+            const currentMonthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(now);
+            const currentYear = now.getFullYear();
+            const currentPeriod = `${currentMonthName} ${currentYear}`.toLowerCase();
+
             const select = document.getElementById('sheetSelector');
+            let matchedGid = sheets[0].gid; // Default ke sheet pertama jika tidak ada yang cocok
+
             sheets.forEach(sheet => {
                 let opt = document.createElement('option');
                 opt.value = sheet.gid;
                 opt.innerText = sheet.name;
+                
+                // Cek jika nama sheet mengandung bulan dan tahun saat ini
+                if (sheet.name.toLowerCase().includes(currentPeriod)) {
+                    matchedGid = sheet.gid;
+                }
+                
                 select.appendChild(opt);
             });
+
+            // Set dropdown ke sheet yang cocok
+            select.value = matchedGid;
 
             loading.style.display = 'none';
             document.getElementById('app').style.display = 'block';
 
-            loadSheetData(sheets[0].gid);
+            loadSheetData(matchedGid);
 
             select.addEventListener('change', (e) => loadSheetData(e.target.value));
 
@@ -164,8 +167,6 @@
         const summaryDiv = document.getElementById('secretSection');
         
         container.innerHTML = "<p style='text-align:center; color:#888;'>Memuat data...</p>";
-        
-        // Reset Admin View saat ganti sheet
         summaryDiv.style.display = 'none'; 
         document.getElementById('adminKey').value = '';
 
@@ -181,12 +182,10 @@
 
             const headers = rawData[0];
             const rows = rawData.slice(1);
-            
             const cleanData = processData(rows);
-            CACHED_DATA = cleanData; // Simpan ke global variable untuk dipakai renderSummary nanti
+            CACHED_DATA = cleanData;
 
             renderSchedule(headers, cleanData);
-            // Kita TIDAK memanggil renderSummary di sini agar tetap rahasia & ringan
 
         } catch (err) {
             container.innerHTML = `<div class="error-msg">Gagal memuat data.<br>${err.message}</div>`;
