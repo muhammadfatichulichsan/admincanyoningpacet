@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADMIN | Jadwal Canyoning Pacet</title>
+<title>Jadwal Canyoning Pro</title>
 <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; padding-bottom: 50px; }
     
     /* Header */
     .header { color: white; padding: 20px; text-align: center; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -42,11 +42,17 @@
     .badge-dp { background: #fff3e0; color: #ef6c00; } /* Oranye */
     .badge-pic { background: #e8f5e9; color: #2e7d32; border-radius: 12px; } /* Hijau */
 
-    /* Rekap Section */
-    .summary-box { background: white; padding: 25px; border-radius: 8px; margin: 30px auto 50px; max-width: 600px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    /* Rekap Section (Hidden by Default) */
+    #secretSection { display: none; } /* KUNCI UTAMA: Default Sembunyi */
+    .summary-box { background: white; padding: 25px; border-radius: 8px; margin: 30px auto 20px; max-width: 600px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-top: 5px solid #2e7d32; }
     .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
     .summary-row:last-child { border-bottom: none; font-weight: bold; font-size: 1.1em; margin-top: 10px; padding-top: 15px; border-top: 2px solid #ddd; }
     
+    /* Secret Input Styling */
+    .secret-container { text-align: center; margin-top: 50px; opacity: 0.3; transition: opacity 0.3s; }
+    .secret-container:hover { opacity: 1; }
+    .secret-input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; text-align: center; width: 100px; }
+
     /* Loading & Error */
     #loading { text-align: center; margin-top: 40px; color: #666; }
     .error-msg { color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 8px; text-align: center; margin: 20px; border: 1px solid #ffcdd2; }
@@ -54,8 +60,7 @@
 </head>
 <body>
 
-<div class="header">
-</div>
+<div class="header"></div>
 
 <div id="loading">
     <div style="font-size: 2em;">⏳</div>
@@ -72,46 +77,68 @@
 
     <div class="container" id="scheduleList"></div>
 
-    <div class="container">
-       <div class="summary-box">
+    <div class="container" id="secretSection">
+        <div class="summary-box">
             <h3 style="text-align:center; margin-top:0; color:#2c3e50;">📊 Rekapitulasi PIC</h3>
             <div id="picSummary"></div>
         </div>
+    </div>
+
+    <div class="container secret-container">
+        <input type="password" id="adminKey" class="secret-input" placeholder="...">
     </div>
 </div>
 
 <script>
     // ==========================================
-    // 1. TEMPEL URL APPS SCRIPT (YANG BERAKHIRAN /exec) DI SINI
+    // 1. TEMPEL URL APPS SCRIPT DI SINI
     // ==========================================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcDMlGtcoO2yY1wFd-ZMTyk3hs-dOmlUhnKd-rryL5JYAQSx-R07wRiP-A6D3bPl6Shg/exec"; 
     // ==========================================
+
+    // ==========================================
+    // 2. SETUP KATA KUNCI DI SINI
+    // ==========================================
+    const SECRET_KEY = "adminslot"; 
+    // ==========================================
+
+    let CACHED_DATA = []; // Variabel global untuk menyimpan data sementara
 
     document.addEventListener("DOMContentLoaded", init);
 
     async function init() {
         const loading = document.getElementById('loading');
         
-        try {
-            // Cek apakah URL sudah diganti
-            if (SCRIPT_URL.includes("MASUKKAN")) {
-                throw new Error("Anda belum memasukkan Link Apps Script ke dalam kode HTML.");
+        // Setup Secret Key Listener
+        const keyInput = document.getElementById('adminKey');
+        keyInput.addEventListener('input', function(e) {
+            const secretDiv = document.getElementById('secretSection');
+            
+            if (e.target.value === SECRET_KEY) {
+                // Jika password benar
+                secretDiv.style.display = 'block';
+                renderSummary(CACHED_DATA); // Hitung rekap saat itu juga
+                e.target.style.borderColor = "#2e7d32"; // Indikator hijau
+            } else {
+                // Jika password salah/kosong
+                secretDiv.style.display = 'none';
+                e.target.style.borderColor = "#ccc";
             }
+        });
 
-            // Fetch Daftar Sheet
+        try {
+            if (SCRIPT_URL.includes("MASUKKAN")) throw new Error("Link Apps Script belum dimasukkan.");
+
             let response = await fetch(SCRIPT_URL);
             
-            // Cek jika response bukan JSON (biasanya karena script minta login / bukan 'Anyone')
             const contentType = response.headers.get("content-type");
             if (!contentType || !contentType.includes("application/json")) {
-                throw new Error("Gagal akses Script. Pastikan Deploy sebagai 'Anyone' (Siapa Saja).");
+                throw new Error("Gagal akses Script. Pastikan Deploy sebagai 'Anyone'.");
             }
 
             let sheets = await response.json();
-            
-            if (!sheets || sheets.length === 0) throw new Error("Tidak ada sheet ditemukan di Spreadsheet.");
+            if (!sheets || sheets.length === 0) throw new Error("Tidak ada sheet ditemukan.");
 
-            // Setup Dropdown
             const select = document.getElementById('sheetSelector');
             sheets.forEach(sheet => {
                 let opt = document.createElement('option');
@@ -120,72 +147,66 @@
                 select.appendChild(opt);
             });
 
-            // Tampilkan App
             loading.style.display = 'none';
             document.getElementById('app').style.display = 'block';
 
-            // Load Data Pertama
             loadSheetData(sheets[0].gid);
 
-            // Event Listener Change
             select.addEventListener('change', (e) => loadSheetData(e.target.value));
 
         } catch (err) {
-            loading.innerHTML = `<div class="error-msg"><strong>Terjadi Kesalahan:</strong><br>${err.message}</div>`;
-            console.error(err);
+            loading.innerHTML = `<div class="error-msg"><strong>Error:</strong><br>${err.message}</div>`;
         }
     }
 
     async function loadSheetData(gid) {
         const container = document.getElementById('scheduleList');
-        const summary = document.getElementById('picSummary');
+        const summaryDiv = document.getElementById('secretSection');
         
         container.innerHTML = "<p style='text-align:center; color:#888;'>Memuat data...</p>";
-        summary.innerHTML = "";
+        
+        // Reset Admin View saat ganti sheet
+        summaryDiv.style.display = 'none'; 
+        document.getElementById('adminKey').value = '';
 
         try {
             let res = await fetch(`${SCRIPT_URL}?gid=${gid}`);
             let rawData = await res.json();
 
-            // Validasi Data
             if (!rawData || rawData.length < 2) {
-                container.innerHTML = "<p style='text-align:center; padding:20px;'>Data kosong di sheet ini.</p>";
+                container.innerHTML = "<p style='text-align:center; padding:20px;'>Data kosong.</p>";
+                CACHED_DATA = [];
                 return;
             }
 
-            const headers = rawData[0]; // Baris Header
-            const rows = rawData.slice(1); // Baris Data
+            const headers = rawData[0];
+            const rows = rawData.slice(1);
             
-            // Proses Fill Forward (Tanggal Kosong)
             const cleanData = processData(rows);
+            CACHED_DATA = cleanData; // Simpan ke global variable untuk dipakai renderSummary nanti
 
-            // Render UI
             renderSchedule(headers, cleanData);
-            renderSummary(cleanData);
+            // Kita TIDAK memanggil renderSummary di sini agar tetap rahasia & ringan
 
         } catch (err) {
-            container.innerHTML = `<div class="error-msg">Gagal memuat detail data.<br>${err.message}</div>`;
+            container.innerHTML = `<div class="error-msg">Gagal memuat data.<br>${err.message}</div>`;
         }
     }
-
-    // --- LOGIC FUNCTIONS ---
 
     function processData(rows) {
         let result = [];
         let lastDate = null;
-        
         rows.forEach(row => {
-            let newRow = [...row]; // Copy array
+            let newRow = [...row];
             let date = newRow[0];
-            // Cek apakah baris ini punya isi (selain tanggal)
             let hasContent = newRow.slice(1).some(cell => cell && cell.toString().trim() !== "");
 
             if ((!date || date.toString().trim() === "") && lastDate && hasContent) {
-                newRow[0] = lastDate; // Pakai tanggal atasnya
+                newRow[0] = lastDate;
             } else if (date && date.toString().trim() !== "") {
-                lastDate = date; // Update tanggal terakhir
+                lastDate = date;
             } else {
-                return; // Skip baris kosong total
+                return;
             }
             result.push(newRow);
         });
@@ -193,7 +214,6 @@
     }
 
     function renderSchedule(headers, data) {
-        // Grouping by Date
         let groups = {};
         data.forEach(row => {
             let d = row[0];
@@ -208,28 +228,27 @@
             let items = groups[date];
             let totalGuest = items.reduce((sum, r) => sum + (parseInt(r[1]) || 0), 0);
 
-            // Wrapper
+            let displayText = "", displayStyle = "";
+            if (totalGuest >= 17) {
+                displayText = "FULL SLOT";
+                displayStyle = "background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; font-weight: bold;";
+            } else {
+                displayText = `${totalGuest} Tamu`;
+                displayStyle = ""; 
+            }
+
             let itemDiv = document.createElement('div');
             itemDiv.className = 'accordion-item';
 
-            // Header Accordion
             let headerDiv = document.createElement('div');
             headerDiv.className = 'accordion-header';
-            headerDiv.innerHTML = `
-                <span class="date">${date}</span>
-                <span class="count">${totalGuest} Tamu</span>
-            `;
+            headerDiv.innerHTML = `<span class="date">${date}</span><span class="count" style="${displayStyle}">${displayText}</span>`;
             
-            // Body Accordion
             let bodyDiv = document.createElement('div');
             bodyDiv.className = 'accordion-body';
             
-            // Table Construction
             let tableHTML = `<div class="table-responsive"><table><thead><tr>`;
-            // Skip kolom 0 (Tanggal) untuk header tabel detail
-            for(let i=1; i<headers.length; i++) {
-                tableHTML += `<th>${headers[i] || '-'}</th>`;
-            }
+            for(let i=1; i<headers.length; i++) tableHTML += `<th>${headers[i] || '-'}</th>`;
             tableHTML += `</tr></thead><tbody>`;
 
             items.forEach(row => {
@@ -237,9 +256,8 @@
                 for(let i=1; i<headers.length; i++) {
                     let text = row[i] || "";
                     let cellContent = text;
-                    
-                    // Auto Styling
                     let lowerText = text.toString().toLowerCase();
+                    
                     if(lowerText.includes('full')) cellContent = `<span class="badge badge-full">${text}</span>`;
                     else if(lowerText.includes('dp') || lowerText.includes('lunas')) cellContent = `<span class="badge badge-dp">${text}</span>`;
                     
@@ -254,14 +272,10 @@
             itemDiv.appendChild(bodyDiv);
             container.appendChild(itemDiv);
 
-            // Click Event
             headerDiv.addEventListener('click', function() {
                 this.classList.toggle('active');
-                if (bodyDiv.style.maxHeight) {
-                    bodyDiv.style.maxHeight = null;
-                } else {
-                    bodyDiv.style.maxHeight = bodyDiv.scrollHeight + "px";
-                }
+                if (bodyDiv.style.maxHeight) bodyDiv.style.maxHeight = null;
+                else bodyDiv.style.maxHeight = bodyDiv.scrollHeight + "px";
             });
         }
     }
@@ -271,35 +285,26 @@
         let grandTotal = 0;
 
         data.forEach(row => {
-            let qty = parseInt(row[1]) || 0; // Asumsi Kolom B = Jumlah
-            let pic = row[3]; // Asumsi Kolom D = PIC
+            let qty = parseInt(row[1]) || 0; 
+            let pic = row[3]; 
             
             if (qty > 0 && pic && pic.trim() !== '-' && pic.trim() !== '') {
-                let name = pic.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase()); // Title Case
+                let name = pic.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase()); 
                 picMap[name] = (picMap[name] || 0) + qty;
                 grandTotal += qty;
             }
         });
 
-        // Sort Descending
         let sorted = Object.entries(picMap).sort((a,b) => b[1] - a[1]);
-        
         let html = "";
+        
         if (sorted.length === 0) {
-            html = "<p style='text-align:center'>Tidak ada data.</p>";
+            html = "<p style='text-align:center'>Tidak ada data PIC untuk direkap.</p>";
         } else {
             sorted.forEach(([name, count]) => {
-                html += `
-                <div class="summary-row">
-                    <span>${name}</span>
-                    <span class="badge badge-pic">${count}</span>
-                </div>`;
+                html += `<div class="summary-row"><span>${name}</span><span class="badge badge-pic">${count}</span></div>`;
             });
-            html += `
-            <div class="summary-row">
-                <span>TOTAL KESELURUHAN</span>
-                <span>${grandTotal}</span>
-            </div>`;
+            html += `<div class="summary-row"><span>TOTAL KESELURUHAN</span><span>${grandTotal}</span></div>`;
         }
         
         document.getElementById('picSummary').innerHTML = html;
