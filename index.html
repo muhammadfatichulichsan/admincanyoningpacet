@@ -2,98 +2,255 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADMIN | Jadwal Canyoning Pacet</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ADMIN | Jadwal Canyoning</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; padding-bottom: 50px; }
-    
-    /* Header */
-    .header { color: white; padding: 20px; text-align: center; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    h2 { margin: 0; font-size: 1.5rem; }
-
-    .container { max-width: 800px; margin: 0 auto; padding: 0 15px; }
-
-    /* Controls */
-    .controls { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
-    select { padding: 10px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px; width: 100%; max-width: 300px; cursor: pointer; }
-
-    /* Accordion */
-    .accordion-item { background: white; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); overflow: hidden; }
-    .accordion-header { 
-        padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; 
-        background: #fff; transition: background 0.2s; border-bottom: 1px solid transparent;
+    :root {
+        --primary: #2563eb;
+        --success: #16a34a;
+        --danger: #dc2626;
+        --bg-light: #f3f4f6;
+        --card-bg: #ffffff;
+        --text-main: #1f2937;
+        --text-muted: #6b7280;
+        --border: #e5e7eb;
     }
-    .accordion-header:hover { background: #f8f9fa; }
-    .accordion-header.active { background: #e3f2fd; border-bottom: 1px solid #e1e4e8; color: #0d47a1; }
-    .accordion-header .date { font-weight: 600; font-size: 1.1em; }
-    .accordion-header .count { font-size: 0.85em; background: #eee; padding: 4px 10px; border-radius: 20px; color: #555; }
-    
-    .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-    .table-responsive { overflow-x: auto; }
-    
-    table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 600px; }
-    th { background: #f1f3f5; text-align: left; padding: 12px 15px; color: #495057; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #dee2e6; }
-    td { padding: 12px 15px; border-bottom: 1px solid #eee; color: #333; }
-    tr:last-child td { border-bottom: none; }
 
-    /* Badges */
-    .badge { padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 0.85em; display: inline-block; }
-    .badge-full { background: #ffebee; color: #c62828; } /* Merah */
-    .badge-dp { background: #fff3e0; color: #ef6c00; } /* Oranye */
-    .badge-pic { background: #e8f5e9; color: #2e7d32; border-radius: 12px; } /* Hijau */
-
-    /* Rekap Section (Hidden by Default) */
-    #secretSection { display: none; } /* KUNCI UTAMA: Default Sembunyi */
-    .summary-box { background: white; padding: 25px; border-radius: 8px; margin: 30px auto 20px; max-width: 600px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-top: 5px solid #2e7d32; }
-    .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-    .summary-row:last-child { border-bottom: none; font-weight: bold; font-size: 1.1em; margin-top: 10px; padding-top: 15px; border-top: 2px solid #ddd; }
+    body { 
+        font-family: 'Inter', sans-serif; 
+        margin: 0; 
+        background-color: var(--bg-light); 
+        color: var(--text-main); 
+        padding-bottom: 80px; 
+        -webkit-tap-highlight-color: transparent;
+    }
     
-    /* Secret Input Styling */
-    .secret-container { text-align: center; margin-top: 50px; opacity: 0.3; transition: opacity 0.3s; }
-    .secret-container:hover { opacity: 1; }
-    .secret-input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; text-align: center; width: 100px; }
+    /* Sticky Header */
+    .header-controls {
+        background: var(--card-bg);
+        padding: 15px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid var(--border);
+    }
 
-    /* Loading & Error */
-    #loading { text-align: center; margin-top: 40px; color: #666; }
-    .error-msg { color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 8px; text-align: center; margin: 20px; border: 1px solid #ffcdd2; }
+    .app-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 10px;
+        color: var(--text-main);
+    }
+
+    select { 
+        padding: 12px; 
+        font-size: 16px; 
+        border: 2px solid var(--border); 
+        border-radius: 8px; 
+        width: 100%; 
+        background: #fff;
+        font-family: inherit;
+        color: var(--text-main);
+        outline: none;
+    }
+    select:focus { border-color: var(--primary); }
+
+    .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+
+    /* Accordion Style */
+    .accordion-item { 
+        background: var(--card-bg); 
+        border-radius: 12px; 
+        margin-bottom: 12px; 
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+        overflow: hidden; 
+        border: 1px solid var(--border);
+    }
+    
+    .accordion-header { 
+        padding: 16px; 
+        cursor: pointer; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        background: var(--card-bg);
+        transition: all 0.2s;
+    }
+    
+    .accordion-header.active { 
+        background: #eff6ff; 
+        border-bottom: 1px solid #dbeafe; 
+    }
+
+    .date-box {
+        display: flex;
+        flex-direction: column;
+    }
+    .date-day { font-weight: 700; font-size: 1rem; color: var(--text-main); }
+    
+    .status-badge { 
+        font-size: 0.75rem; 
+        padding: 4px 10px; 
+        border-radius: 20px; 
+        font-weight: 600; 
+        letter-spacing: 0.5px;
+    }
+    .status-normal { background: #f3f4f6; color: var(--text-muted); }
+    .status-full { background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; }
+
+    .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: #fafafa; }
+
+    /* --- MOBILE CARD VIEW --- */
+    table { width: 100%; border-collapse: collapse; }
+    
+    @media (min-width: 601px) {
+        th { background: #f9fafb; text-align: left; padding: 12px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+        .mobile-label { display: none; }
+    }
+
+    @media (max-width: 600px) {
+        thead { display: none; }
+        tr { 
+            display: block; 
+            margin: 15px; 
+            background: white; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        td { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 8px 0; 
+            border-bottom: 1px solid #f3f4f6; 
+            font-size: 0.95rem;
+        }
+        td:last-child { border-bottom: none; }
+        td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-right: 15px;
+            text-transform: uppercase;
+        }
+        .action-cell {
+            display: block;
+            margin-top: 10px;
+            border-top: 1px dashed var(--border);
+            padding-top: 10px;
+            text-align: center;
+        }
+        .action-cell::before { display: none; }
+    }
+
+    .row-lunas { opacity: 0.6; background-color: #f9f9f9 !important; }
+    .row-lunas td { text-decoration: line-through; color: var(--text-muted); }
+    .row-lunas .btn-action { text-decoration: none !important; }
+
+    .badge { padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 0.85em; }
+    .badge-full { background: #fee2e2; color: #b91c1c; }
+    .badge-dp { background: #ffedd5; color: #c2410c; }
+    
+    /* Summary Section - DEFAULT HIDDEN */
+    #secretSection { display: none; } /* KUNCI: Disembunyikan disini */
+    
+    .summary-box { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-top: 4px solid var(--success); margin-bottom: 30px;}
+    .summary-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .summary-row:last-child { border: none; font-weight: 800; font-size: 1.1em; margin-top: 10px; }
+    .badge-pic { background: #dcfce7; color: #15803d; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    .btn-action {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 14px;
+        transition: transform 0.1s;
+    }
+    .btn-action:active { transform: scale(0.98); }
+    .btn-pay { background: var(--success); color: white; box-shadow: 0 2px 4px rgba(22, 163, 74, 0.3); }
+    .btn-cancel { background: white; color: var(--danger); border: 2px solid var(--danger); }
+
+    .secret-container { text-align: center; margin-top: 40px; padding: 20px; }
+    .secret-input { 
+        padding: 12px; 
+        border: 2px solid var(--border); 
+        border-radius: 8px; 
+        text-align: center; 
+        width: 150px; 
+        transition: all 0.3s;
+        font-size: 14px;
+    }
+    .secret-input:focus { border-color: var(--primary); width: 200px; outline: none; }
+    
+    #logoutBtn {
+        background: var(--danger);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-top: 15px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);
+    }
+
+    #loading { margin-top: 50px; text-align: center; color: var(--text-muted); }
+    .spinner { font-size: 2rem; animation: spin 1s infinite linear; display: inline-block; margin-bottom: 10px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
 </style>
 </head>
 <body>
 
-<div class="header"></div>
+<div class="header-controls">
+    <div class="app-title"> Jadwal Canyoning</div>
+    <div class="container" style="padding:0; margin:0 auto;">
+        <select id="sheetSelector"></select>
+    </div>
+</div>
 
 <div id="loading">
-    <div style="font-size: 2em;">⏳</div>
-    <p>Sedang menghubungkan ke Spreadsheet...</p>
+    <div class="spinner">🌀</div>
+    <p>Sinkronisasi Data...</p>
 </div>
 
 <div id="app" style="display:none;">
-    <div class="container">
-        <div class="controls">
-            <label for="sheetSelector" style="display:block; margin-bottom:8px; font-weight:600; color:#555;">Pilih Periode:</label>
-            <select id="sheetSelector"></select>
-        </div>
-    </div>
-
+    
     <div class="container" id="scheduleList"></div>
 
     <div class="container" id="secretSection">
         <div class="summary-box">
-            <h3 style="text-align:center; margin-top:0; color:#2c3e50;">📊 Rekapitulasi PIC</h3>
+            <h3 style="margin:0 0 15px 0; color:var(--text-main); font-size:1.1rem;">📊 Rekapitulasi PIC</h3>
             <div id="picSummary"></div>
         </div>
     </div>
 
-    <div class="container secret-container">
-        <input type="password" id="adminKey" class="secret-input" placeholder="...">
+    <div class="secret-container">
+        <input type="password" id="adminKey" class="secret-input" placeholder="">
+        <div id="logoutBtn" style="display:none;" onclick="logoutAdmin()">Keluar Admin</div>
     </div>
 </div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcDMlGtcoO2yY1wFd-ZMTyk3hs-dOmlUhnKd-rryL5JYAQSx-R07wRiP-A6D3bPl6Shg/exec"; 
     const SECRET_KEY = "q"; 
+    const ADMIN_STORAGE_KEY = "pacet_admin_session"; 
+    const LUNAS_STORAGE_PREFIX = "status_lunas_"; 
 
     let CACHED_DATA = []; 
+    let CURRENT_HEADERS = [];
+    let IS_ADMIN = false;
 
     document.addEventListener("DOMContentLoaded", init);
 
@@ -101,94 +258,89 @@
         const loading = document.getElementById('loading');
         const keyInput = document.getElementById('adminKey');
         
+        // Auto Login Check
+        if (localStorage.getItem(ADMIN_STORAGE_KEY) === 'true') {
+            enableAdminMode(keyInput);
+        }
+        
+        // Login Listener
         keyInput.addEventListener('input', function(e) {
-            const secretDiv = document.getElementById('secretSection');
             if (e.target.value === SECRET_KEY) {
-                secretDiv.style.display = 'block';
+                localStorage.setItem(ADMIN_STORAGE_KEY, 'true');
+                enableAdminMode(e.target);
+                
+                // Render Ulang setelah login agar summary muncul
                 renderSummary(CACHED_DATA);
-                e.target.style.borderColor = "#2e7d32";
-            } else {
-                secretDiv.style.display = 'none';
-                e.target.style.borderColor = "#ccc";
+                renderSchedule(CURRENT_HEADERS, CACHED_DATA);
+                alert("✅ Mode Admin Aktif");
             }
         });
 
         try {
-            if (SCRIPT_URL.includes("MASUKKAN")) throw new Error("Link Apps Script belum dimasukkan.");
-
             let response = await fetch(SCRIPT_URL);
-            const contentType = response.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                throw new Error("Gagal akses Script. Pastikan Deploy sebagai 'Anyone'.");
-            }
-
             let sheets = await response.json();
-            if (!sheets || sheets.length === 0) throw new Error("Tidak ada sheet ditemukan.");
-
-            // Deteksi Bulan dan Tahun saat ini (Indonesia)
+            
             const now = new Date();
-            const currentMonthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(now);
-            const currentYear = now.getFullYear();
-            const currentPeriod = `${currentMonthName} ${currentYear}`.toLowerCase();
-
+            const currentPeriod = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(now).toLowerCase();
             const select = document.getElementById('sheetSelector');
-            let matchedGid = sheets[0].gid; // Default ke sheet pertama jika tidak ada yang cocok
+            let matchedGid = sheets[0].gid; 
 
             sheets.forEach(sheet => {
                 let opt = document.createElement('option');
                 opt.value = sheet.gid;
                 opt.innerText = sheet.name;
-                
-                // Cek jika nama sheet mengandung bulan dan tahun saat ini
-                if (sheet.name.toLowerCase().includes(currentPeriod)) {
-                    matchedGid = sheet.gid;
-                }
-                
+                if (sheet.name.toLowerCase().includes(currentPeriod)) matchedGid = sheet.gid;
                 select.appendChild(opt);
             });
 
-            // Set dropdown ke sheet yang cocok
             select.value = matchedGid;
-
             loading.style.display = 'none';
             document.getElementById('app').style.display = 'block';
-
+            
             loadSheetData(matchedGid);
-
             select.addEventListener('change', (e) => loadSheetData(e.target.value));
 
         } catch (err) {
-            loading.innerHTML = `<div class="error-msg"><strong>Error:</strong><br>${err.message}</div>`;
+            loading.innerHTML = `<div style="color:red; padding:20px;">Gagal memuat data.<br>${err.message}</div>`;
         }
+    }
+
+    function enableAdminMode(inputElement) {
+        IS_ADMIN = true;
+        // Tampilkan Section Rekapitulasi
+        document.getElementById('secretSection').style.display = 'block';
+        // Tampilkan Tombol Logout
+        document.getElementById('logoutBtn').style.display = 'inline-block';
+        // Sembunyikan Input
+        inputElement.style.display = 'none'; 
     }
 
     async function loadSheetData(gid) {
         const container = document.getElementById('scheduleList');
-        const summaryDiv = document.getElementById('secretSection');
-        
-        container.innerHTML = "<p style='text-align:center; color:#888;'>Memuat data...</p>";
-        summaryDiv.style.display = 'none'; 
-        document.getElementById('adminKey').value = '';
+        container.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>Memuat data...</p>";
 
         try {
             let res = await fetch(`${SCRIPT_URL}?gid=${gid}`);
             let rawData = await res.json();
 
             if (!rawData || rawData.length < 2) {
-                container.innerHTML = "<p style='text-align:center; padding:20px;'>Data kosong.</p>";
+                container.innerHTML = "<p style='text-align:center; padding:20px;'>Belum ada jadwal.</p>";
                 CACHED_DATA = [];
                 return;
             }
 
-            const headers = rawData[0];
-            const rows = rawData.slice(1);
-            const cleanData = processData(rows);
-            CACHED_DATA = cleanData;
+            CURRENT_HEADERS = rawData[0];
+            CACHED_DATA = processData(rawData.slice(1));
 
-            renderSchedule(headers, cleanData);
+            renderSchedule(CURRENT_HEADERS, CACHED_DATA);
+            
+            // HANYA RENDER SUMMARY JIKA ADMIN
+            if(IS_ADMIN) {
+                renderSummary(CACHED_DATA);
+            }
 
         } catch (err) {
-            container.innerHTML = `<div class="error-msg">Gagal memuat data.<br>${err.message}</div>`;
+            container.innerHTML = "Gagal memuat data.";
         }
     }
 
@@ -198,15 +350,11 @@
         rows.forEach(row => {
             let newRow = [...row];
             let date = newRow[0];
-            let hasContent = newRow.slice(1).some(cell => cell && cell.toString().trim() !== "");
-
-            if ((!date || date.toString().trim() === "") && lastDate && hasContent) {
+            if ((!date || date === "") && lastDate && newRow.slice(1).some(c => c)) {
                 newRow[0] = lastDate;
-            } else if (date && date.toString().trim() !== "") {
+            } else if (date) {
                 lastDate = date;
-            } else {
-                return;
-            }
+            } else return;
             result.push(newRow);
         });
         return result;
@@ -226,86 +374,117 @@
         for (let date in groups) {
             let items = groups[date];
             let totalGuest = items.reduce((sum, r) => sum + (parseInt(r[1]) || 0), 0);
-
-            let displayText = "", displayStyle = "";
-            if (totalGuest >= 17) {
-                displayText = "FULL SLOT";
-                displayStyle = "background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; font-weight: bold;";
-            } else {
-                displayText = `${totalGuest} Tamu`;
-                displayStyle = ""; 
-            }
+            let isFull = totalGuest >= 17;
 
             let itemDiv = document.createElement('div');
             itemDiv.className = 'accordion-item';
 
-            let headerDiv = document.createElement('div');
-            headerDiv.className = 'accordion-header';
-            headerDiv.innerHTML = `<span class="date">${date}</span><span class="count" style="${displayStyle}">${displayText}</span>`;
+            let headerHTML = `
+                <div class="accordion-header">
+                    <div class="date-box">
+                        <span class="date-day">${date}</span>
+                    </div>
+                    <span class="status-badge ${isFull ? 'status-full' : 'status-normal'}">
+                        ${isFull ? 'FULL SLOT' : `${totalGuest} Tamu`}
+                    </span>
+                </div>
+                <div class="accordion-body">
+                    <table>
+                        <thead>
+                            <tr>`;
             
-            let bodyDiv = document.createElement('div');
-            bodyDiv.className = 'accordion-body';
+            for(let i=1; i<headers.length; i++) headerHTML += `<th>${headers[i]}</th>`;
+            if (IS_ADMIN) headerHTML += `<th style="text-align:center;">Admin</th>`;
             
-            let tableHTML = `<div class="table-responsive"><table><thead><tr>`;
-            for(let i=1; i<headers.length; i++) tableHTML += `<th>${headers[i] || '-'}</th>`;
-            tableHTML += `</tr></thead><tbody>`;
+            headerHTML += `</tr></thead><tbody>`;
+            
+            let bodyContent = "";
 
-            items.forEach(row => {
-                tableHTML += `<tr>`;
+            items.forEach((row, index) => {
+                let rowID = btoa(date + "_" + index + "_" + (row[2] || "x")); 
+                let isLunas = localStorage.getItem(LUNAS_STORAGE_PREFIX + rowID) === 'true';
+                let rowClass = (isLunas && IS_ADMIN) ? 'class="row-lunas"' : '';
+
+                bodyContent += `<tr ${rowClass}>`;
+                
                 for(let i=1; i<headers.length; i++) {
                     let text = row[i] || "";
+                    let headerLabel = headers[i]; 
                     let cellContent = text;
                     let lowerText = text.toString().toLowerCase();
-                    
+
                     if(lowerText.includes('full')) cellContent = `<span class="badge badge-full">${text}</span>`;
                     else if(lowerText.includes('dp') || lowerText.includes('lunas')) cellContent = `<span class="badge badge-dp">${text}</span>`;
                     
-                    tableHTML += `<td>${cellContent}</td>`;
+                    bodyContent += `<td data-label="${headerLabel}">${cellContent}</td>`;
                 }
-                tableHTML += `</tr>`;
+
+                if (IS_ADMIN) {
+                    let btnHTML = isLunas 
+                        ? `<button class="btn-action btn-cancel" onclick="toggleStatus('${rowID}', false)">Batal Lunas</button>`
+                        : `<button class="btn-action btn-pay" onclick="toggleStatus('${rowID}', true)">Tandai Lunas</button>`;
+                    
+                    bodyContent += `<td class="action-cell" data-label="Aksi">${btnHTML}</td>`;
+                }
+
+                bodyContent += `</tr>`;
             });
-            tableHTML += `</tbody></table></div>`;
-            
-            bodyDiv.innerHTML = tableHTML;
-            itemDiv.appendChild(headerDiv);
-            itemDiv.appendChild(bodyDiv);
+
+            headerHTML += bodyContent + `</tbody></table></div>`;
+            itemDiv.innerHTML = headerHTML;
             container.appendChild(itemDiv);
 
-            headerDiv.addEventListener('click', function() {
+            itemDiv.querySelector('.accordion-header').addEventListener('click', function() {
                 this.classList.toggle('active');
-                if (bodyDiv.style.maxHeight) bodyDiv.style.maxHeight = null;
-                else bodyDiv.style.maxHeight = bodyDiv.scrollHeight + "px";
+                let body = this.nextElementSibling;
+                if (body.style.maxHeight) body.style.maxHeight = null;
+                else body.style.maxHeight = body.scrollHeight + "px";
             });
+        }
+    }
+
+    window.toggleStatus = function(rowID, setLunas) {
+        if (setLunas) {
+            if (confirm("Tandai tamu ini LUNAS?")) {
+                localStorage.setItem(LUNAS_STORAGE_PREFIX + rowID, 'true');
+                renderSchedule(CURRENT_HEADERS, CACHED_DATA); 
+            }
+        } else {
+            if (confirm("Batalkan status Lunas?")) {
+                localStorage.removeItem(LUNAS_STORAGE_PREFIX + rowID);
+                renderSchedule(CURRENT_HEADERS, CACHED_DATA); 
+            }
+        }
+    };
+
+    window.logoutAdmin = function() {
+        if(confirm("Keluar dari Admin?")) {
+            localStorage.removeItem(ADMIN_STORAGE_KEY);
+            location.reload(); 
         }
     }
 
     function renderSummary(data) {
         let picMap = {};
         let grandTotal = 0;
-
         data.forEach(row => {
             let qty = parseInt(row[1]) || 0; 
             let pic = row[3]; 
-            
             if (qty > 0 && pic && pic.trim() !== '-' && pic.trim() !== '') {
                 let name = pic.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase()); 
                 picMap[name] = (picMap[name] || 0) + qty;
                 grandTotal += qty;
             }
         });
-
         let sorted = Object.entries(picMap).sort((a,b) => b[1] - a[1]);
         let html = "";
-        
-        if (sorted.length === 0) {
-            html = "<p style='text-align:center'>Tidak ada data PIC untuk direkap.</p>";
-        } else {
+        if (sorted.length === 0) html = "<p style='text-align:center; color:#999'>Data kosong</p>";
+        else {
             sorted.forEach(([name, count]) => {
-                html += `<div class="summary-row"><span>${name}</span><span class="badge badge-pic">${count}</span></div>`;
+                html += `<div class="summary-row"><span>${name}</span><span class="badge-pic">${count}</span></div>`;
             });
-            html += `<div class="summary-row"><span>TOTAL KESELURUHAN</span><span>${grandTotal}</span></div>`;
+            html += `<div class="summary-row" style="margin-top:15px; border-top:2px solid #eee; padding-top:15px"><span>TOTAL</span><span>${grandTotal}</span></div>`;
         }
-        
         document.getElementById('picSummary').innerHTML = html;
     }
 </script>
