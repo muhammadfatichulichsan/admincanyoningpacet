@@ -4,226 +4,209 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ADMIN | Jadwal Canyoning</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
     :root {
         --primary: #2563eb;
-        --success: #16a34a;
-        --danger: #dc2626;
-        --bg-light: #f3f4f6;
-        --card-bg: #ffffff;
-        --text-main: #1f2937;
-        --text-muted: #6b7280;
-        --border: #e5e7eb;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --bg-body: #f8fafc;
+        --text-dark: #0f172a;
+        --text-gray: #64748b;
+        --border-color: #e2e8f0;
     }
 
     body { 
         font-family: 'Inter', sans-serif; 
         margin: 0; 
-        background-color: var(--bg-light); 
-        color: var(--text-main); 
+        background-color: var(--bg-body); 
+        color: var(--text-dark); 
         padding-bottom: 80px; 
         -webkit-tap-highlight-color: transparent;
     }
     
-    /* Sticky Header */
+    /* Sticky Header Clean */
     .header-controls {
-        background: var(--card-bg);
-        padding: 15px;
+        background: #fff;
+        padding: 15px 20px;
         position: sticky;
         top: 0;
         z-index: 100;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
     }
 
-    .app-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        text-align: center;
-        margin-bottom: 10px;
-        color: var(--text-main);
-    }
+    .app-title { font-size: 1rem; font-weight: 600; white-space: nowrap; }
 
     select { 
-        padding: 12px; 
-        font-size: 16px; 
-        border: 2px solid var(--border); 
-        border-radius: 8px; 
-        width: 100%; 
-        background: #fff;
-        font-family: inherit;
-        color: var(--text-main);
+        padding: 8px 12px; 
+        font-size: 14px; 
+        border: 1px solid var(--border-color); 
+        border-radius: 6px; 
+        background: #f1f5f9;
+        color: var(--text-dark);
         outline: none;
+        width: 100%;
+        max-width: 200px;
     }
-    select:focus { border-color: var(--primary); }
 
     .container { max-width: 600px; margin: 0 auto; padding: 15px; }
 
-    /* Accordion Style */
+    /* Accordion Minimalis */
     .accordion-item { 
-        background: var(--card-bg); 
-        border-radius: 12px; 
-        margin-bottom: 12px; 
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
-        overflow: hidden; 
-        border: 1px solid var(--border);
+        background: #fff; 
+        border-radius: 8px; 
+        margin-bottom: 10px; 
+        border: 1px solid var(--border-color);
+        overflow: hidden;
     }
     
     .accordion-header { 
-        padding: 16px; 
+        padding: 15px; 
         cursor: pointer; 
         display: flex; 
         justify-content: space-between; 
         align-items: center; 
-        background: var(--card-bg);
-        transition: all 0.2s;
+        background: #fff;
     }
     
-    .accordion-header.active { 
-        background: #eff6ff; 
-        border-bottom: 1px solid #dbeafe; 
-    }
-
-    .date-box {
-        display: flex;
-        flex-direction: column;
-    }
-    .date-day { font-weight: 700; font-size: 1rem; color: var(--text-main); }
+    .accordion-header.active { background: #f8fafc; }
+    .date-day { font-weight: 600; font-size: 0.95rem; }
     
-    .status-badge { 
-        font-size: 0.75rem; 
-        padding: 4px 10px; 
-        border-radius: 20px; 
-        font-weight: 600; 
-        letter-spacing: 0.5px;
+    .status-text { 
+        font-size: 0.8rem; 
+        font-weight: 500;
+        color: var(--text-gray);
     }
-    .status-normal { background: #f3f4f6; color: var(--text-muted); }
-    .status-full { background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; }
+    .status-text.full { color: var(--danger); font-weight: 600; }
 
-    .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: #fafafa; }
+    .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
 
-    /* --- MOBILE CARD VIEW --- */
+    /* --- TABEL SUPER SIMPEL (Mobile List View) --- */
     table { width: 100%; border-collapse: collapse; }
     
+    /* Desktop View */
     @media (min-width: 601px) {
-        th { background: #f9fafb; text-align: left; padding: 12px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
-        .mobile-label { display: none; }
+        th { text-align: left; padding: 12px; font-size: 0.85rem; color: var(--text-gray); border-bottom: 1px solid var(--border-color); background: #f8fafc; }
+        td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
     }
 
+    /* Mobile View - Clean List */
     @media (max-width: 600px) {
         thead { display: none; }
+        
         tr { 
             display: block; 
-            margin: 15px; 
-            background: white; 
-            border: 1px solid var(--border); 
-            border-radius: 8px; 
-            padding: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border-bottom: 1px solid var(--border-color); 
+            padding: 12px 15px;
         }
+        tr:last-child { border-bottom: none; }
+
         td { 
             display: flex; 
             justify-content: space-between; 
-            align-items: center;
-            padding: 8px 0; 
-            border-bottom: 1px solid #f3f4f6; 
+            align-items: flex-start; 
+            padding: 4px 0; 
             font-size: 0.95rem;
+            border: none;
         }
-        td:last-child { border-bottom: none; }
+
+        /* Label (Kiri) */
         td::before {
             content: attr(data-label);
-            font-weight: 600;
-            color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            color: #94a3b8; /* Abu-abu muda */
             margin-right: 15px;
-            text-transform: uppercase;
+            font-weight: 500;
+            min-width: 80px; 
         }
+        
+        /* Value (Kanan) */
+        td > span, td > div {
+            text-align: right;
+            flex: 1;
+            color: var(--text-dark);
+        }
+
+        /* Action Cell khusus */
         .action-cell {
-            display: block;
             margin-top: 10px;
-            border-top: 1px dashed var(--border);
             padding-top: 10px;
-            text-align: center;
+            border-top: 1px dashed var(--border-color);
+            display: block;
         }
         .action-cell::before { display: none; }
     }
 
-    .row-lunas { opacity: 0.6; background-color: #f9f9f9 !important; }
-    .row-lunas td { text-decoration: line-through; color: var(--text-muted); }
-    .row-lunas .btn-action { text-decoration: none !important; }
+    /* Efek Coretan Lunas */
+    .row-lunas td { opacity: 0.5; text-decoration: line-through; }
+    .row-lunas .btn-action { opacity: 1; text-decoration: none; } 
 
-    .badge { padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 0.85em; }
-    .badge-full { background: #fee2e2; color: #b91c1c; }
+    /* Badges Minimalis */
+    .badge { padding: 2px 8px; border-radius: 4px; font-size: 0.75em; font-weight: 600; display: inline-block;}
+    .badge-full { background: #fee2e2; color: #dc2626; }
     .badge-dp { background: #ffedd5; color: #c2410c; }
     
-    /* Summary Section - DEFAULT HIDDEN */
-    #secretSection { display: none; } /* KUNCI: Disembunyikan disini */
+    /* Admin Section */
+    #secretSection { display: none; }
     
-    .summary-box { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-top: 4px solid var(--success); margin-bottom: 30px;}
-    .summary-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
-    .summary-row:last-child { border: none; font-weight: 800; font-size: 1.1em; margin-top: 10px; }
-    .badge-pic { background: #dcfce7; color: #15803d; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+    .summary-box { 
+        background: #fff; 
+        padding: 20px; 
+        border-radius: 8px; 
+        border: 1px solid var(--border-color);
+        margin-bottom: 30px;
+    }
+    .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+    .summary-row:last-child { border: none; font-weight: 600; margin-top: 5px; font-size: 1rem; }
 
+    /* Tombol Admin Flat */
     .btn-action {
         width: 100%;
-        padding: 12px;
+        padding: 10px;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.85rem;
         border: none;
-        border-radius: 8px;
-        font-weight: 600;
         cursor: pointer;
-        font-size: 14px;
-        transition: transform 0.1s;
     }
-    .btn-action:active { transform: scale(0.98); }
-    .btn-pay { background: var(--success); color: white; box-shadow: 0 2px 4px rgba(22, 163, 74, 0.3); }
-    .btn-cancel { background: white; color: var(--danger); border: 2px solid var(--danger); }
+    .btn-pay { background: #dcfce7; color: #166534; } 
+    .btn-cancel { background: #fee2e2; color: #991b1b; } 
 
-    .secret-container { text-align: center; margin-top: 40px; padding: 20px; }
+    /* Login Area */
+    .secret-container { text-align: center; margin-top: 30px; padding: 20px; }
     .secret-input { 
-        padding: 12px; 
-        border: 2px solid var(--border); 
-        border-radius: 8px; 
+        padding: 10px; 
+        border: 1px solid var(--border-color); 
+        border-radius: 6px; 
         text-align: center; 
-        width: 150px; 
-        transition: all 0.3s;
         font-size: 14px;
+        background: #fff;
     }
-    .secret-input:focus { border-color: var(--primary); width: 200px; outline: none; }
     
     #logoutBtn {
-        background: var(--danger);
-        color: white;
-        padding: 10px 20px;
-        border-radius: 20px;
-        display: inline-block;
+        color: var(--danger);
+        font-size: 0.85rem;
         margin-top: 15px;
-        font-size: 13px;
-        font-weight: 600;
         cursor: pointer;
-        box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);
+        text-decoration: underline;
     }
 
-    #loading { margin-top: 50px; text-align: center; color: var(--text-muted); }
-    .spinner { font-size: 2rem; animation: spin 1s infinite linear; display: inline-block; margin-bottom: 10px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    #loading { margin-top: 50px; text-align: center; color: var(--text-gray); font-size: 0.9rem; }
 
 </style>
 </head>
 <body>
 
 <div class="header-controls">
-    <div class="app-title"> Jadwal Canyoning</div>
-    <div class="container" style="padding:0; margin:0 auto;">
-        <select id="sheetSelector"></select>
-    </div>
+    <div class="app-title">Pilih Bulan</div>
+    <select id="sheetSelector"></select>
 </div>
 
-<div id="loading">
-    <div class="spinner">🌀</div>
-    <p>Sinkronisasi Data...</p>
-</div>
+<div id="loading">⟳ Memuat data...</div>
 
 <div id="app" style="display:none;">
     
@@ -231,14 +214,14 @@
 
     <div class="container" id="secretSection">
         <div class="summary-box">
-            <h3 style="margin:0 0 15px 0; color:var(--text-main); font-size:1.1rem;">📊 Rekapitulasi PIC</h3>
+            <h3 style="margin:0 0 15px 0; font-size:1rem;">📊 Rekap Admin</h3>
             <div id="picSummary"></div>
         </div>
     </div>
 
     <div class="secret-container">
-        <input type="password" id="adminKey" class="secret-input" placeholder="">
-        <div id="logoutBtn" style="display:none;" onclick="logoutAdmin()">Keluar Admin</div>
+        <input type="password" id="adminKey" class="secret-input" placeholder="Kode Admin">
+        <div id="logoutBtn" style="display:none;" onclick="logoutAdmin()">Logout</div>
     </div>
 </div>
 
@@ -258,21 +241,16 @@
         const loading = document.getElementById('loading');
         const keyInput = document.getElementById('adminKey');
         
-        // Auto Login Check
         if (localStorage.getItem(ADMIN_STORAGE_KEY) === 'true') {
             enableAdminMode(keyInput);
         }
         
-        // Login Listener
         keyInput.addEventListener('input', function(e) {
             if (e.target.value === SECRET_KEY) {
                 localStorage.setItem(ADMIN_STORAGE_KEY, 'true');
                 enableAdminMode(e.target);
-                
-                // Render Ulang setelah login agar summary muncul
                 renderSummary(CACHED_DATA);
                 renderSchedule(CURRENT_HEADERS, CACHED_DATA);
-                alert("✅ Mode Admin Aktif");
             }
         });
 
@@ -301,30 +279,27 @@
             select.addEventListener('change', (e) => loadSheetData(e.target.value));
 
         } catch (err) {
-            loading.innerHTML = `<div style="color:red; padding:20px;">Gagal memuat data.<br>${err.message}</div>`;
+            loading.innerHTML = "Gagal memuat data.";
         }
     }
 
     function enableAdminMode(inputElement) {
         IS_ADMIN = true;
-        // Tampilkan Section Rekapitulasi
         document.getElementById('secretSection').style.display = 'block';
-        // Tampilkan Tombol Logout
         document.getElementById('logoutBtn').style.display = 'inline-block';
-        // Sembunyikan Input
         inputElement.style.display = 'none'; 
     }
 
     async function loadSheetData(gid) {
         const container = document.getElementById('scheduleList');
-        container.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>Memuat data...</p>";
+        container.innerHTML = "<p style='text-align:center; padding:20px; color:#ccc;'>...</p>";
 
         try {
             let res = await fetch(`${SCRIPT_URL}?gid=${gid}`);
             let rawData = await res.json();
 
             if (!rawData || rawData.length < 2) {
-                container.innerHTML = "<p style='text-align:center; padding:20px;'>Belum ada jadwal.</p>";
+                container.innerHTML = "<p style='text-align:center; padding:20px;'>KOSONG</p>";
                 CACHED_DATA = [];
                 return;
             }
@@ -333,14 +308,10 @@
             CACHED_DATA = processData(rawData.slice(1));
 
             renderSchedule(CURRENT_HEADERS, CACHED_DATA);
-            
-            // HANYA RENDER SUMMARY JIKA ADMIN
-            if(IS_ADMIN) {
-                renderSummary(CACHED_DATA);
-            }
+            if(IS_ADMIN) renderSummary(CACHED_DATA);
 
         } catch (err) {
-            container.innerHTML = "Gagal memuat data.";
+            container.innerHTML = "Error.";
         }
     }
 
@@ -381,20 +352,26 @@
 
             let headerHTML = `
                 <div class="accordion-header">
-                    <div class="date-box">
-                        <span class="date-day">${date}</span>
-                    </div>
-                    <span class="status-badge ${isFull ? 'status-full' : 'status-normal'}">
-                        ${isFull ? 'FULL SLOT' : `${totalGuest} Tamu`}
+                    <span class="date-day">${date}</span>
+                    <span class="status-text ${isFull ? 'full' : ''}">
+                        ${isFull ? 'FULL' : `${totalGuest} Tamu`}
                     </span>
                 </div>
                 <div class="accordion-body">
                     <table>
-                        <thead>
-                            <tr>`;
+                        <thead><tr>`;
             
-            for(let i=1; i<headers.length; i++) headerHTML += `<th>${headers[i]}</th>`;
-            if (IS_ADMIN) headerHTML += `<th style="text-align:center;">Admin</th>`;
+            // --- LOOPING HEADER ---
+            for(let i=1; i<headers.length; i++) {
+                let hName = headers[i].toLowerCase();
+                // HANYA HAPUS jika ada kata 'fix'
+                // Kata 'jumlah' saja akan tetap muncul
+                if (hName.includes('fix')) continue;
+
+                headerHTML += `<th>${headers[i]}</th>`;
+            }
+
+            if (IS_ADMIN) headerHTML += `<th>Aksi</th>`;
             
             headerHTML += `</tr></thead><tbody>`;
             
@@ -407,7 +384,12 @@
 
                 bodyContent += `<tr ${rowClass}>`;
                 
+                // --- LOOPING ISI DATA ---
                 for(let i=1; i<headers.length; i++) {
+                    let hName = headers[i].toLowerCase();
+                    // SAMA: HANYA HAPUS jika ada kata 'fix'
+                    if (hName.includes('fix')) continue;
+
                     let text = row[i] || "";
                     let headerLabel = headers[i]; 
                     let cellContent = text;
@@ -416,7 +398,7 @@
                     if(lowerText.includes('full')) cellContent = `<span class="badge badge-full">${text}</span>`;
                     else if(lowerText.includes('dp') || lowerText.includes('lunas')) cellContent = `<span class="badge badge-dp">${text}</span>`;
                     
-                    bodyContent += `<td data-label="${headerLabel}">${cellContent}</td>`;
+                    bodyContent += `<td data-label="${headerLabel}"><span>${cellContent}</span></td>`;
                 }
 
                 if (IS_ADMIN) {
@@ -424,7 +406,7 @@
                         ? `<button class="btn-action btn-cancel" onclick="toggleStatus('${rowID}', false)">Batal Lunas</button>`
                         : `<button class="btn-action btn-pay" onclick="toggleStatus('${rowID}', true)">Tandai Lunas</button>`;
                     
-                    bodyContent += `<td class="action-cell" data-label="Aksi">${btnHTML}</td>`;
+                    bodyContent += `<td class="action-cell">${btnHTML}</td>`;
                 }
 
                 bodyContent += `</tr>`;
@@ -445,12 +427,12 @@
 
     window.toggleStatus = function(rowID, setLunas) {
         if (setLunas) {
-            if (confirm("Tandai tamu ini LUNAS?")) {
+            if (confirm("Lunas?")) {
                 localStorage.setItem(LUNAS_STORAGE_PREFIX + rowID, 'true');
                 renderSchedule(CURRENT_HEADERS, CACHED_DATA); 
             }
         } else {
-            if (confirm("Batalkan status Lunas?")) {
+            if (confirm("Batal Lunas?")) {
                 localStorage.removeItem(LUNAS_STORAGE_PREFIX + rowID);
                 renderSchedule(CURRENT_HEADERS, CACHED_DATA); 
             }
@@ -458,7 +440,7 @@
     };
 
     window.logoutAdmin = function() {
-        if(confirm("Keluar dari Admin?")) {
+        if(confirm("Keluar Admin?")) {
             localStorage.removeItem(ADMIN_STORAGE_KEY);
             location.reload(); 
         }
@@ -478,12 +460,12 @@
         });
         let sorted = Object.entries(picMap).sort((a,b) => b[1] - a[1]);
         let html = "";
-        if (sorted.length === 0) html = "<p style='text-align:center; color:#999'>Data kosong</p>";
+        if (sorted.length === 0) html = "<p style='text-align:center; color:#ccc'>Kosong</p>";
         else {
             sorted.forEach(([name, count]) => {
-                html += `<div class="summary-row"><span>${name}</span><span class="badge-pic">${count}</span></div>`;
+                html += `<div class="summary-row"><span>${name}</span><span>${count}</span></div>`;
             });
-            html += `<div class="summary-row" style="margin-top:15px; border-top:2px solid #eee; padding-top:15px"><span>TOTAL</span><span>${grandTotal}</span></div>`;
+            html += `<div class="summary-row" style="margin-top:10px; border-top:1px solid #eee; padding-top:10px"><span>TOTAL</span><span>${grandTotal}</span></div>`;
         }
         document.getElementById('picSummary').innerHTML = html;
     }
